@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="author" content="Ivan Veselov">
+  <meta name="dcterms.date" content="2018-03-07">
+  <title>How to build a tuple?</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="tufte.css">
+  <link rel="stylesheet" href="pandoc.css">
+  <link rel="stylesheet" href="tufte-extra.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/contrib/auto-render.min.js"></script><script>document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body);
+  });</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<article>
+<header>
+<h1 class="title">How to build a tuple?</h1>
+<p class="byline">March 7, 2018 &ndash; Ivan Veselov</p>
+</header>
+<section id="order" class="level2">
+<h2>Order</h2>
+<p>Concept of order is ubiquitous in mathematics and computer science, it permeates even the basic definitions. For example: what is a function from <span class="math inline">\(X\)</span> to <span class="math inline">\(Y\)</span>? In set-theoretic terms it is some kind of relation between two sets (that has only one “value” for each “argument”). Then, what is a relation between two sets <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>? It is a subset of their Cartesian product <span class="math inline">\(X \times Y\)</span> and Cartesian product of two sets is defined as:</p>
+<p><span class="math display">\[
+X \times Y \equiv \{\langle x, y \rangle: x \in X, y \in Y\}
+\]</span></p>
+<p>In words: it is a set of all ordered pairs with the first element taken from <span class="math inline">\(X\)</span> and the second – from <span class="math inline">\(Y\)</span>. Here, we encounter for the first time the concept of an <em>ordered pair</em> or, as it is sometimes known, <em>a tuple</em>. I’ll use those terms interchangeably. Also I’ll denote tuples with angle brackets: <span class="math inline">\(\langle x, y \rangle\)</span> as it is quite common in set theory books.</p>
+<p>Note that many important mathematical objects like relations or functions are (or can be) asymmetric, e.g. a function is defined <em>from</em> some set <span class="math inline">\(X\)</span> <em>to</em> another set <span class="math inline">\(Y\)</span>, those sets play different roles. The same goes about relations. Consider relation “to be parent of”. Then “Clara is a parent of Jack” is not the same as “Jack is a parent of Clara”. When we express relations or functions in terms of sets, we need a way to express this asymmetricity, we need ordered pairs.</p>
+</section>
+<section id="tuples" class="level2">
+<h2>Tuples</h2>
+<p>Now, we have to ask: what is an ordered pair? How do we define one in terms of set theory?</p>
+<p>If we have a set, say <span class="math inline">\(\{1, 2\}\)</span>, it does not have order. What we mean by this is that <span class="math inline">\(\{1, 2\} = \{2, 1\}\)</span>, it does not matter in which order we enumerate set elements. The set does not have any structure and is fully defined just by its elements. But now we are looking for an encoding which would represent ordered pairs as sets which would be different for pairs <span class="math inline">\(\langle 1, 2 \rangle\)</span> and <span class="math inline">\(\langle 2, 1\rangle\)</span>.</p>
+<p>This encoding <span class="math inline">\(\langle x,y \rangle\)</span> has to uniquely identify both elements <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> themselves and also their order. This is a succinctly described by the following property which is called <em>characteristic property</em> of ordered pairs, since it captures their essence:</p>
+<p><span class="math display">\[
+\langle x,y \rangle = \langle u,v \rangle \iff x = u \land y = v
+\]</span></p>
+<p>In words: two encodings of ordered pairs are the same if and only if first elements are the same and second elements are the same.</p>
+<p>To understand the property better let’s start with an encoding which does not satisfy it: <span class="math display">\[
+\langle x,y \rangle = \{x, \{y\}\}
+\]</span></p>
+<p>It may look as it can do the job, but in fact we can find two different pairs of sets which would be encoded to the same set, making it impossible to understand what the original pair was. Here they are<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">Note that <span class="math inline">\(\emptyset \not = \{\emptyset\}\)</span> and <span class="math inline">\(\{\emptyset\} \not = \{\{\emptyset\}\}\)</span>, since they contain different elements, e.g. <span class="math inline">\(\emptyset\)</span> contains no elements and <span class="math inline">\(\{\emptyset\}\)</span> contains one element: the empty set.<br />
+<br />
+</span></span>:</p>
+<p><span class="math display">\[
+\begin{array}{lll}
+ \langle \{\{\emptyset\}\}, \emptyset \rangle &amp;= \{ \{\{\emptyset\}\}, \{\emptyset\} \} \\
+ \langle \{\emptyset\}, \{\emptyset\} \rangle &amp;= \{ \{\emptyset\}, \{\{\emptyset\}\} \} &amp;= \{ \{\{\emptyset\}\}, \{\emptyset\} \}
+\end{array}
+\]</span></p>
+<p>So our encoding does not work. A better idea which actually works is to define encoding in this way: <span class="math display">\[
+\langle x,y \rangle = \{\{x\}, \{x, y\}\}
+\]</span></p>
+<p>The intuition as to how to arrive to this encoding is as follows: since we want to “visit” set elements in order, we can keep track of elements we have seen on every step. On the first step we’ve just seen <span class="math inline">\(x\)</span>, so we have <span class="math inline">\(\{x\}\)</span> element, on the second step we’ve seen both <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>, so we have <span class="math inline">\(\{x, y\}\)</span>. Combining those two we get our <span class="math inline">\(\{\{x\}, \{x, y\}\}\)</span> encoding.</p>
+<p>This definition was given by Polish mathematician Kazimierz Kuratowski in 1921.</p>
+<p>In order to show that Kuratowski encoding is a valid one, we need to prove that it satisfies the characteristic property. It is a slightly laborious proof, so I only give you the sketch of it. In one direction it is trivial, i.e. to show that <span class="math inline">\(x = u \land y = v \implies \langle x,y \rangle = \langle u,v \rangle\)</span>, we just build those sets-encodings and directly see that they have the same elements and thus are equal.</p>
+<p>The opposite direction is more interesting, we need to show that:</p>
+<p><span class="math display">\[
+\langle x,y \rangle = \langle u,v \rangle \implies x = u \land y = v
+\]</span></p>
+<p>Substituting the definition:</p>
+<p><span class="math display">\[
+\{\{x\}, \{x, y\}\} = \{\{u\}, \{u, v\}\} \implies x = u \land y = v
+\]</span></p>
+<p>Now we’ll have to examine possible combinations of elements which are supposed to be equal by the left hand side. Here, of great help would be the fact that we have <span class="math inline">\(\{x, y\}\)</span> together in one of the encoding elements, which would allow us to put more restrictions on the elements and finally derive that, necessarily, <span class="math inline">\(x = u\)</span> and <span class="math inline">\(y = v\)</span>.</p>
+</section>
+<section id="alternative-encodings" class="level2">
+<h2>Alternative encodings</h2>
+<p>So, Kuratowski encoding works well, is it the only one satisfying the property? It turns out that no, there are others. The first one, given by Norbert Wiener in 1914 was as follows:</p>
+<p><span class="math display">\[
+\langle x,y \rangle_{wiener} = \{\{\{x\}, \emptyset\}, \{\{y\}\}\}
+\]</span></p>
+<p>As you can see it’s not as elegant as Kuratowski definition.</p>
+<p>Another encoding is similar to Kuratowski, but even shorter:</p>
+<p><span class="math display">\[
+\langle x,y \rangle_{short} = \{x, \{x, y\}\}
+\]</span></p>
+<p>It has certain minor drawbacks though: the proof that it satisfies the characteristic property requires axiom of regularity. Also, encoding of <span class="math inline">\(\langle 0, 1\rangle\)</span> tuple is exactly the same as number 2, represented in set theory (numbers can also be represented in set theory using certain encodings).</p>
+<p>The last encoding which I wanted to show is one which looks quite natural (I think) to a programmer. If we need to convert a set to a tuple, why not just add labels? Mark the first element with, say, 0 and the second with 1:</p>
+<p><span class="math display">\[
+\langle x,y \rangle_{prog} = \{\{0, x\}, \{1, y\}\}
+\]</span></p>
+<p>Here, we have to clarify what is 0 and 1. As I already mentioned above, natural numbers can also be encoded in set theory. I won’t go into details about that (it would require one more post to properly cover it), but the gist is that in a classical von Neumann encoding, first natural numbers are represented as follows:</p>
+<p><span class="math display">\[
+\begin{array}{lll}
+0 &amp; &amp;= \emptyset \\
+1 &amp;= \{0\} &amp;= \{\emptyset\} \\
+2 &amp;= \{0, 1\} &amp;= \{\emptyset, \{\emptyset\} \} \\
+3 &amp;= \{0, 1, 2\} &amp;= \{ \emptyset,  \{\emptyset\}, \{\emptyset, \{\emptyset\} \} \} \\
+\end{array}
+\]</span></p>
+<p>We can use those definitions of 0 and 1, spend some time proving that this encoding satisfies the characteristic property (it does) and then we can use it as well as Kuratowski’s.</p>
+<p>When we say “use the definition” I mean that we just use it to show that ordered pairs can be built in set theory (in any of the ways proposed above, it does not actually matter much which way we choose), they satisfy required properties and then we are done with it, we can start using ordered pairs without any further references to their encodings, we abstracted it away.</p>
+<p>You may also notice that those encodings are somewhat unsatisfactory in a sense that they have some “accidental” properties, e.g. using Kuratowski encoding we have that <span class="math inline">\(\{x, y\} \in \langle x, y \rangle\)</span> or that in short encoding <span class="math inline">\(\langle 0, 1 \rangle_{short} = 2\)</span>. Those strange properties do not convey any intended mathematical meaning, they are just “side effects” in a way. One can say that truly beautiful objects should only have properties required of them and nothing extra, that is why one may find those encodings unappealing. There are other ways of dealing with this situation, for example ordered pairs could be introduced axiomatically, as a separate primitive. There is a trade-off between number of axioms and primitives one has to work with and certain artificial properties. As Paul Halmos puts it:</p>
+<blockquote>
+<p>The mathematician’s choice is between having to remember a few more axioms and having to forget a few accidental facts; the choice is pretty clearly a matter of taste.</p>
+<footer>
+Paul Halmos, “Naive Set Theory”
+</footer>
+</blockquote>
+</section>
+<section id="exercise" class="level2">
+<h2>Exercise</h2>
+<p>Say we want to encode ordered triples a-la Kuratowski: <span class="math display">\[
+\langle x, y, z \rangle = \{ \{x\}, \{x,y\}, \{x,y,z\} \}
+\]</span></p>
+<p>Is that a valid encoding, having the characteristic property? If not, find a counterexample.</p>
+</section>
+<section id="references" class="level2">
+<h2>References</h2>
+<ul>
+<li>Herbert Enderton “Elements of Set Theory”</li>
+<li>Paul Halmos “Naive Set Theory”</li>
+<li>Wikipedia: <a href="https://en.wikipedia.org/wiki/Ordered_pair">Ordered pair</a></li>
+</ul>
+</section>
+</article>
+</body>
+</html>
